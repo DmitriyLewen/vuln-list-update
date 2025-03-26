@@ -11,7 +11,7 @@ jobs:
     env:
       GITHUB_TOKEN: ${{ secrets.ORG_REPO_TOKEN }}
       VULN_LIST_DIR: "vuln-list-k8s"
-      REPOSITORY_OWNER: ${{ github.repository_owner }}
+      REPOSITORY_OWNER: DmitriyLewen
     steps:
     - name: Check out code
       uses: actions/checkout@v4
