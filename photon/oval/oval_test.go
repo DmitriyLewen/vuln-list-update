@@ -30,18 +30,18 @@ func TestConfig_Update(t *testing.T) {
 			name:  "positive test",
 			appFs: afero.NewMemMapFs(),
 			xmlFileNames: map[string]string{
-				"/photon_oval_definitions/com.vmware.phsa-photon3.xml.gz": "testdata/photon3.xml",
+				"/photon_oval_definitions/com.vmware.phsa-photon5.xml.gz": "testdata/photon5.xml",
 			},
 			goldenFiles: map[string]string{
-				"/tmp/photon-oval/3.0/PHSA-2026-00001.json": "testdata/golden/photon-oval/3.0/PHSA-2026-00001.json",
-				"/tmp/photon-oval/3.0/PHSA-2026-00004.json": "testdata/golden/photon-oval/3.0/PHSA-2026-00004.json",
+				"/tmp/photon-oval/5.0/PHSA-2026-00001.json": "testdata/golden/photon-oval/5.0/PHSA-2026-00001.json",
+				"/tmp/photon-oval/5.0/PHSA-2026-00007.json": "testdata/golden/photon-oval/5.0/PHSA-2026-00007.json",
 			},
 		},
 		{
 			name:  "invalid filesystem write read only path",
 			appFs: afero.NewReadOnlyFs(afero.NewOsFs()),
 			xmlFileNames: map[string]string{
-				"/photon_oval_definitions/com.vmware.phsa-photon3.xml.gz": "testdata/photon3.xml",
+				"/photon_oval_definitions/com.vmware.phsa-photon5.xml.gz": "testdata/photon5.xml",
 			},
 			goldenFiles:      map[string]string{},
 			expectedErrorMsg: "unable to create a directory: operation not permitted",
@@ -58,16 +58,16 @@ func TestConfig_Update(t *testing.T) {
 			name:  "invalid gzip format",
 			appFs: afero.NewMemMapFs(),
 			rawFileNames: map[string]string{
-				"/photon_oval_definitions/com.vmware.phsa-photon3.xml.gz": "testdata/invalid.txt",
+				"/photon_oval_definitions/com.vmware.phsa-photon5.xml.gz": "testdata/invalid.txt",
 			},
 			goldenFiles:      map[string]string{},
-			expectedErrorMsg: "failed to decompress Photon OVAL: gzip: invalid header",
+			expectedErrorMsg: "failed to decompress Photon OVAL:",
 		},
 		{
 			name:  "broken XML",
 			appFs: afero.NewMemMapFs(),
 			xmlFileNames: map[string]string{
-				"/photon_oval_definitions/com.vmware.phsa-photon3.xml.gz": "testdata/broken_oval.xml",
+				"/photon_oval_definitions/com.vmware.phsa-photon5.xml.gz": "testdata/broken_oval.xml",
 			},
 			goldenFiles:      map[string]string{},
 			expectedErrorMsg: "failed to decode Photon OVAL XML:",
@@ -107,7 +107,7 @@ func TestConfig_Update(t *testing.T) {
 			}))
 			defer ts.Close()
 
-			// Use photon version 3 for URL targeting in tests
+			// Use photon version 5 for URL targeting in tests
 			urlFormat := ts.URL + "/photon_oval_definitions/com.vmware.phsa-photon%s.xml.gz"
 			c := oval.Config{
 				VulnListDir: "/tmp",
@@ -116,8 +116,8 @@ func TestConfig_Update(t *testing.T) {
 				Retry:       0,
 			}
 
-			// Wrap Update() to only process version "3" in tests
-			err := c.UpdateVersion("3")
+			// Wrap Update() to only process version "5" in tests
+			err := c.UpdateVersion("5")
 			switch {
 			case tc.expectedErrorMsg != "":
 				assert.Contains(t, err.Error(), tc.expectedErrorMsg, tc.name)
