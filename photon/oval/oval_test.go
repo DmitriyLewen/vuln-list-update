@@ -33,8 +33,8 @@ func TestConfig_Update(t *testing.T) {
 				"/photon_oval_definitions/com.vmware.phsa-photon3.xml.gz": "testdata/photon3.xml",
 			},
 			goldenFiles: map[string]string{
-				"/tmp/oval/photon/3.0/PHSA-2026-00001.json": "testdata/golden/oval/photon/3.0/PHSA-2026-00001.json",
-				"/tmp/oval/photon/3.0/PHSA-2026-00004.json": "testdata/golden/oval/photon/3.0/PHSA-2026-00004.json",
+				"/tmp/photon-oval/3.0/PHSA-2026-00001.json": "testdata/golden/photon-oval/3.0/PHSA-2026-00001.json",
+				"/tmp/photon-oval/3.0/PHSA-2026-00004.json": "testdata/golden/photon-oval/3.0/PHSA-2026-00004.json",
 			},
 		},
 		{

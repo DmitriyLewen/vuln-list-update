@@ -18,8 +18,7 @@ import (
 
 const (
 	ovalURLFormat = "https://packages.broadcom.com/photon/photon_oval_definitions/com.vmware.phsa-photon%s.xml.gz"
-	ovalDir       = "oval"
-	photonDir     = "photon"
+	photonOvalDir = "photon-oval"
 	retry         = 5
 )
 
@@ -102,7 +101,7 @@ func (c Config) UpdateVersion(photonVer string) error {
 }
 
 func (c Config) savePHSA(osVer, phsaID string, def Definition) error {
-	dir := filepath.Join(c.VulnListDir, ovalDir, photonDir, osVer)
+	dir := filepath.Join(c.VulnListDir, photonOvalDir, osVer)
 	fileName := fmt.Sprintf("%s.json", phsaID)
 	if err := utils.WriteJSON(c.AppFs, dir, fileName, def); err != nil {
 		return xerrors.Errorf("failed to write file: %w", err)
