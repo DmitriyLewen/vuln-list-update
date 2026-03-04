@@ -76,9 +76,9 @@ func (c Config) UpdateVersion(photonVer string) error {
 		def.Title = strings.TrimSpace(def.Title)
 		def.Description = strings.TrimSpace(def.Description)
 
-		phsaID, err := PhsaIDFromTitle(def.Title)
+		phsaID, err := PhsaIDFromRef(def.References)
 		if err != nil {
-			log.Printf("invalid PHSA title: %s\n", def.Title)
+			log.Printf("invalid PHSA reference in %q: %v\n", def.Title, err)
 			bar.Increment()
 			continue
 		}
@@ -103,18 +103,20 @@ func (c Config) savePHSA(osVer, phsaID string, def Definition) error {
 	return nil
 }
 
-// PhsaIDFromTitle extracts a filesystem-safe PHSA advisory ID from a definition title.
-// E.g. "PHSA-2026:00001 telegraf Security Update. (Moderate)" → "PHSA-2026-00001"
-func PhsaIDFromTitle(title string) (string, error) {
-	parts := strings.Fields(title)
-	if len(parts) == 0 {
-		return "", xerrors.New("empty title")
+// PhsaIDFromRef extracts a filesystem-safe PHSA advisory ID from definition references.
+// It finds the reference with source="PHSA" and parses its ref_id.
+// E.g. ref_id="PHSA:00001:5.0:20" → "PHSA-5.0-20"
+func PhsaIDFromRef(refs []Reference) (string, error) {
+	for _, ref := range refs {
+		if ref.Source != "PHSA" {
+			continue
+		}
+		// Format: PHSA:{sequence}:{photon_ver}:{advisory_number}
+		parts := strings.Split(ref.ID, ":")
+		if len(parts) != 4 || parts[0] != "PHSA" {
+			return "", xerrors.Errorf("unexpected PHSA ref_id format: %s", ref.ID)
+		}
+		return "PHSA-" + parts[2] + "-" + parts[3], nil
 	}
-	// Replace ":" with "-" to make it filesystem-safe
-	id := strings.ReplaceAll(parts[0], ":", "-")
-	s := strings.Split(id, "-")
-	if len(s) < 3 || s[0] != "PHSA" {
-		return "", xerrors.Errorf("unexpected PHSA ID format: %s", parts[0])
-	}
-	return id, nil
+	return "", xerrors.New("no PHSA source reference found")
 }

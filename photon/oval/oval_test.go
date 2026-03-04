@@ -33,8 +33,8 @@ func TestConfig_Update(t *testing.T) {
 				"/photon_oval_definitions/com.vmware.phsa-photon5.xml.gz": "testdata/photon5.xml",
 			},
 			goldenFiles: map[string]string{
-				"/tmp/photon-oval/5.0/PHSA-2026-00001.json": "testdata/golden/photon-oval/5.0/PHSA-2026-00001.json",
-				"/tmp/photon-oval/5.0/PHSA-2026-00007.json": "testdata/golden/photon-oval/5.0/PHSA-2026-00007.json",
+				"/tmp/photon-oval/5.0/PHSA-5.0-20.json":  "testdata/golden/photon-oval/5.0/PHSA-5.0-20.json",
+				"/tmp/photon-oval/5.0/PHSA-5.0-347.json": "testdata/golden/photon-oval/5.0/PHSA-5.0-347.json",
 			},
 		},
 		{
@@ -160,39 +160,50 @@ func TestConfig_Update(t *testing.T) {
 	}
 }
 
-// Additional test for phsaIDFromTitle corner cases
-func TestPhsaIDFromTitle(t *testing.T) {
+// Additional test for PhsaIDFromRef corner cases
+func TestPhsaIDFromRef(t *testing.T) {
 	testCases := []struct {
 		name        string
-		title       string
+		refs        []oval.Reference
 		expectedID  string
 		expectError bool
 	}{
 		{
-			name:       "valid single CVE title",
-			title:      "PHSA-2026:00001 telegraf Security Update. (Moderate)",
-			expectedID: "PHSA-2026-00001",
+			name: "valid single advisory",
+			refs: []oval.Reference{
+				{Source: "PHSA", ID: "PHSA:00001:5.0:20"},
+				{Source: "CVE", ID: "CVE:00001:CVE-2023-2602"},
+			},
+			expectedID: "PHSA-5.0-20",
 		},
 		{
-			name:       "valid multiple CVE title",
-			title:      "PHSA-2026:00004 keepalived Security Update. (Moderate)",
-			expectedID: "PHSA-2026-00004",
+			name: "valid multi-CVE advisory",
+			refs: []oval.Reference{
+				{Source: "PHSA", ID: "PHSA:00007:5.0:347"},
+				{Source: "CVE", ID: "CVE:00007:CVE-2024-41184"},
+			},
+			expectedID: "PHSA-5.0-347",
 		},
 		{
-			name:        "empty title",
-			title:       "",
+			name:        "no references",
+			refs:        []oval.Reference{},
 			expectError: true,
 		},
 		{
-			name:        "invalid format - no colon",
-			title:       "ELSA-2026-00001 something",
+			name:        "no PHSA source reference",
+			refs:        []oval.Reference{{Source: "CVE", ID: "CVE:00001:CVE-2023-2602"}},
+			expectError: true,
+		},
+		{
+			name:        "invalid ref_id format",
+			refs:        []oval.Reference{{Source: "PHSA", ID: "PHSA:00001"}},
 			expectError: true,
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			id, err := oval.PhsaIDFromTitle(tc.title)
+			id, err := oval.PhsaIDFromRef(tc.refs)
 			if tc.expectError {
 				assert.Error(t, err)
 				return
