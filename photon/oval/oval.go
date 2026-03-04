@@ -70,6 +70,7 @@ func (c Config) UpdateVersion(photonVer string) error {
 		return xerrors.Errorf("failed to decode Photon OVAL XML: %w", err)
 	}
 
+	osVer := photonVer + ".0"
 	bar := pb.StartNew(len(ov.Definitions))
 	for _, def := range ov.Definitions {
 		def.Title = strings.TrimSpace(def.Title)
@@ -78,13 +79,6 @@ func (c Config) UpdateVersion(photonVer string) error {
 		phsaID, err := PhsaIDFromTitle(def.Title)
 		if err != nil {
 			log.Printf("invalid PHSA title: %s\n", def.Title)
-			bar.Increment()
-			continue
-		}
-
-		osVer := OsVersionFromCriteria(def.Criteria)
-		if osVer == "" {
-			log.Printf("failed to detect OS version for %s\n", phsaID)
 			bar.Increment()
 			continue
 		}
@@ -125,19 +119,3 @@ func PhsaIDFromTitle(title string) (string, error) {
 	return id, nil
 }
 
-// OsVersionFromCriteria extracts the Photon OS version string from criteria.
-// It looks for a criterion comment like "Photon OS 3 is installed" and returns "3.0".
-func OsVersionFromCriteria(cri Criteria) string {
-	for _, c := range cri.Criterions {
-		if strings.HasPrefix(c.Comment, "Photon OS ") && strings.HasSuffix(c.Comment, " is installed") {
-			ver := strings.TrimSuffix(strings.TrimPrefix(c.Comment, "Photon OS "), " is installed")
-			return ver + ".0"
-		}
-	}
-	for _, c := range cri.Criterias {
-		if ver := OsVersionFromCriteria(*c); ver != "" {
-			return ver
-		}
-	}
-	return ""
-}

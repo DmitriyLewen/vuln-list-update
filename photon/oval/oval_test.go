@@ -47,11 +47,11 @@ func TestConfig_Update(t *testing.T) {
 			expectedErrorMsg: "unable to create a directory: operation not permitted",
 		},
 		{
-			name:         "404",
-			appFs:        afero.NewMemMapFs(),
-			xmlFileNames: map[string]string{},
-			rawFileNames: map[string]string{},
-			goldenFiles:  map[string]string{},
+			name:             "404",
+			appFs:            afero.NewMemMapFs(),
+			xmlFileNames:     map[string]string{},
+			rawFileNames:     map[string]string{},
+			goldenFiles:      map[string]string{},
 			expectedErrorMsg: "failed to fetch Photon OVAL: failed to fetch URL: HTTP error. status code: 404, url:",
 		},
 		{
@@ -199,53 +199,6 @@ func TestPhsaIDFromTitle(t *testing.T) {
 			}
 			assert.NoError(t, err)
 			assert.Equal(t, tc.expectedID, id)
-		})
-	}
-}
-
-// Additional test for osVersionFromCriteria corner cases
-func TestOsVersionFromCriteria(t *testing.T) {
-	testCases := []struct {
-		name       string
-		criteria   oval.Criteria
-		expectedOS string
-	}{
-		{
-			name: "version in top-level criterions",
-			criteria: oval.Criteria{
-				Operator: "AND",
-				Criterions: []oval.Criterion{
-					{Comment: "Photon OS 3 is installed"},
-				},
-			},
-			expectedOS: "3.0",
-		},
-		{
-			name: "version 5",
-			criteria: oval.Criteria{
-				Operator: "AND",
-				Criterions: []oval.Criterion{
-					{Comment: "Photon OS 5 is installed"},
-				},
-			},
-			expectedOS: "5.0",
-		},
-		{
-			name: "no version criterion",
-			criteria: oval.Criteria{
-				Operator: "AND",
-				Criterions: []oval.Criterion{
-					{Comment: "telegraf is earlier than 0:1.25.2-1.ph3"},
-				},
-			},
-			expectedOS: "",
-		},
-	}
-
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			ver := oval.OsVersionFromCriteria(tc.criteria)
-			assert.Equal(t, tc.expectedOS, ver)
 		})
 	}
 }
