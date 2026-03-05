@@ -33,8 +33,8 @@ func TestConfig_Update(t *testing.T) {
 				"/photon_oval_definitions/com.vmware.phsa-photon5.xml.gz": "testdata/photon5.xml",
 			},
 			goldenFiles: map[string]string{
-				"/tmp/photon-oval/5.0/PHSA-5.0-20.json":  "testdata/golden/photon-oval/5.0/PHSA-5.0-20.json",
-				"/tmp/photon-oval/5.0/PHSA-5.0-347.json": "testdata/golden/photon-oval/5.0/PHSA-5.0-347.json",
+				"/tmp/photon-oval/5.0/PHSA-2023-5.0-20.json":  "testdata/golden/photon-oval/5.0/PHSA-2023-5.0-20.json",
+				"/tmp/photon-oval/5.0/PHSA-2024-5.0-347.json": "testdata/golden/photon-oval/5.0/PHSA-2024-5.0-347.json",
 			},
 		},
 		{
@@ -165,6 +165,7 @@ func TestPhsaIDFromRef(t *testing.T) {
 	testCases := []struct {
 		name        string
 		refs        []oval.Reference
+		issuedDate  string
 		expectedID  string
 		expectError bool
 	}{
@@ -174,7 +175,8 @@ func TestPhsaIDFromRef(t *testing.T) {
 				{Source: "PHSA", ID: "PHSA:00001:5.0:20"},
 				{Source: "CVE", ID: "CVE:00001:CVE-2023-2602"},
 			},
-			expectedID: "PHSA-5.0-20",
+			issuedDate: "2023-06-07",
+			expectedID: "PHSA-2023-5.0-20",
 		},
 		{
 			name: "valid multi-CVE advisory",
@@ -182,28 +184,38 @@ func TestPhsaIDFromRef(t *testing.T) {
 				{Source: "PHSA", ID: "PHSA:00007:5.0:347"},
 				{Source: "CVE", ID: "CVE:00007:CVE-2024-41184"},
 			},
-			expectedID: "PHSA-5.0-347",
+			issuedDate: "2024-08-15",
+			expectedID: "PHSA-2024-5.0-347",
 		},
 		{
 			name:        "no references",
 			refs:        []oval.Reference{},
+			issuedDate:  "2023-06-07",
 			expectError: true,
 		},
 		{
 			name:        "no PHSA source reference",
 			refs:        []oval.Reference{{Source: "CVE", ID: "CVE:00001:CVE-2023-2602"}},
+			issuedDate:  "2023-06-07",
 			expectError: true,
 		},
 		{
 			name:        "invalid ref_id format",
 			refs:        []oval.Reference{{Source: "PHSA", ID: "PHSA:00001"}},
+			issuedDate:  "2023-06-07",
+			expectError: true,
+		},
+		{
+			name:        "invalid issued date",
+			refs:        []oval.Reference{{Source: "PHSA", ID: "PHSA:00001:5.0:20"}},
+			issuedDate:  "",
 			expectError: true,
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			id, err := oval.PhsaIDFromRef(tc.refs)
+			id, err := oval.PhsaIDFromRef(tc.refs, tc.issuedDate)
 			if tc.expectError {
 				assert.Error(t, err)
 				return

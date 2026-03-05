@@ -76,7 +76,7 @@ func (c Config) UpdateVersion(photonVer string) error {
 		def.Title = strings.TrimSpace(def.Title)
 		def.Description = strings.TrimSpace(def.Description)
 
-		phsaID, err := PhsaIDFromRef(def.References)
+		phsaID, err := PhsaIDFromRef(def.References, def.Issued.Date)
 		if err != nil {
 			log.Printf("invalid PHSA reference in %q: %v\n", def.Title, err)
 			bar.Increment()
@@ -103,10 +103,14 @@ func (c Config) savePHSA(osVer, phsaID string, def Definition) error {
 	return nil
 }
 
-// PhsaIDFromRef extracts a filesystem-safe PHSA advisory ID from definition references.
-// It finds the reference with source="PHSA" and parses its ref_id.
-// E.g. ref_id="PHSA:00001:5.0:20" → "PHSA-5.0-20"
-func PhsaIDFromRef(refs []Reference) (string, error) {
+// PhsaIDFromRef extracts a filesystem-safe PHSA advisory ID from definition references and issued date.
+// It finds the reference with source="PHSA" and parses its ref_id together with the issued year.
+// E.g. ref_id="PHSA:00001:5.0:20", issuedDate="2023-06-07" → "PHSA-2023-5.0-20"
+func PhsaIDFromRef(refs []Reference, issuedDate string) (string, error) {
+	if len(issuedDate) < 4 {
+		return "", xerrors.Errorf("invalid issued date: %q", issuedDate)
+	}
+	year := issuedDate[:4]
 	for _, ref := range refs {
 		if ref.Source != "PHSA" {
 			continue
@@ -116,7 +120,7 @@ func PhsaIDFromRef(refs []Reference) (string, error) {
 		if len(parts) != 4 || parts[0] != "PHSA" {
 			return "", xerrors.Errorf("unexpected PHSA ref_id format: %s", ref.ID)
 		}
-		return "PHSA-" + parts[2] + "-" + parts[3], nil
+		return "PHSA-" + year + "-" + parts[2] + "-" + parts[3], nil
 	}
 	return "", xerrors.New("no PHSA source reference found")
 }
