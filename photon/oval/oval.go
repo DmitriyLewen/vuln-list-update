@@ -75,6 +75,7 @@ func (c Config) UpdateVersion(photonVer string) error {
 	for _, def := range ov.Definitions {
 		def.Title = strings.TrimSpace(def.Title)
 		def.Description = strings.TrimSpace(def.Description)
+		normalizeRefURLs(def.References)
 
 		phsaID, err := PhsaIDFromRef(def.References, def.Issued.Date)
 		if err != nil {
@@ -101,6 +102,14 @@ func (c Config) savePHSA(osVer, phsaID string, def Definition) error {
 		return xerrors.Errorf("failed to write file: %w", err)
 	}
 	return nil
+}
+
+// normalizeRefURLs fixes a known typo in Photon OVAL ref_urls where the wiki path segment
+// "Security-Updates-" should be "Security-Update-" (without trailing 's').
+func normalizeRefURLs(refs []Reference) {
+	for i, ref := range refs {
+		refs[i].URI = strings.Replace(ref.URI, "/Security-Updates-", "/Security-Update-", 1)
+	}
 }
 
 // PhsaIDFromRef extracts a filesystem-safe PHSA advisory ID from definition references and issued date.

@@ -7,7 +7,7 @@
   "References": [
     {
       "Source": "PHSA",
-      "URI": "https://github.com/vmware/photon/wiki/Security-Updates-5.0-20",
+      "URI": "https://github.com/vmware/photon/wiki/Security-Update-5.0-20",
       "ID": "PHSA:00001:5.0:20"
     },
     {
