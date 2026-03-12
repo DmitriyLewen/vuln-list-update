@@ -52,6 +52,13 @@ func (db *Database) Update() error {
 			return xerrors.Errorf("failed to download %s: %w", ecosystem.URL, err)
 		}
 
+		// Remove the existing directory to delete files that have been removed from the source
+		ecosystemDir := filepath.Join(db.baseDir, ecosystem.Dir)
+		log.Printf("[OSV] Removing %s directory", ecosystemDir)
+		if err = os.RemoveAll(ecosystemDir); err != nil {
+			return xerrors.Errorf("failed to remove %s directory: %w", name, err)
+		}
+
 		err = filepath.WalkDir(tempDir, func(path string, d fs.DirEntry, walkErr error) error {
 			if walkErr != nil {
 				return walkErr
