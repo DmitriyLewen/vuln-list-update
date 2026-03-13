@@ -75,6 +75,13 @@ func (db *Database) Update() error {
 				return xerrors.Errorf("unable to parse json %s: %w", path, err)
 			}
 
+			if len(parsed.Affected) == 0 {
+				log.Printf("[OSV] skipping %s: no affected packages", parsed.ID)
+				return nil
+			}
+
+			// Replace colons with slashes to avoid invalid directory names.
+			// e.g. Maven "groupId:artifactId" -> "groupId/artifactId"
 			pkgName := strings.ReplaceAll(parsed.Affected[0].Package.Name, ":", "/")
 			filePath := filepath.Join(db.baseDir, ecosystem.Dir, pkgName, fmt.Sprintf("%s.json", parsed.ID))
 			if err = utils.Write(filePath, parsed); err != nil {
