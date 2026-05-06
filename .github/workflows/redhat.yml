@@ -75,7 +75,8 @@ jobs:
       id: redhat-security-data-fetch
       name: Red Hat Security Data API (fetch)
       run: |
-        ./vuln-list-update -vuln-list-dir "$VULN_LIST_DIR" -target redhat
+        # TEST STUB: simulate successful fetch with no workdir changes
+        echo "Test stub: fetch succeeds, no changes"
         if [[ -n $(git -C "$VULN_LIST_DIR" status --porcelain) ]]; then
           echo "has_changes=true" >> "$GITHUB_OUTPUT"
         fi
