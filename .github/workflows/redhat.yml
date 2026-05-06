@@ -83,6 +83,8 @@ jobs:
         exit 1
         if [[ -n $(git -C "$VULN_LIST_DIR" status --porcelain) ]]; then
           echo "has_changes=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "No changes — refresh and push will be skipped"
         fi
 
     - if: steps.redhat-security-data-fetch.outputs.has_changes == 'true'
