@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"os"
 	"path/filepath"
 	"time"
 
@@ -24,14 +23,15 @@ const (
 )
 
 func Update() error {
-	dirPath := filepath.Join(utils.VulnListDir(), apiDir)
-	log.Printf("Remove RedHat API directory %s", dirPath)
-	if err := os.RemoveAll(dirPath); err != nil {
-		return xerrors.Errorf("failed to remove RedHat API directory: %w", err)
-	}
+	// TEST ONLY: keep existing data so we observe additions only — do not merge
+	// dirPath := filepath.Join(utils.VulnListDir(), apiDir)
+	// log.Printf("Remove RedHat API directory %s", dirPath)
+	// if err := os.RemoveAll(dirPath); err != nil {
+	// 	return xerrors.Errorf("failed to remove RedHat API directory: %w", err)
+	// }
 
-	now := time.Now()
-	for year := 1996; year <= now.Year(); year++ {
+	// TEST ONLY: limit to year 2025 to validate the CVE details fetch timeout — do not merge
+	for year := 2025; year <= 2025; year++ {
 		if err := update(year); err != nil {
 			return xerrors.Errorf("error in RedHat update: %w", err)
 		}
