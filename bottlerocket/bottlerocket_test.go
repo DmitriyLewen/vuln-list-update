@@ -51,10 +51,10 @@ func TestConfig_Update(t *testing.T) {
 			defer ts.Close()
 
 			tmpDir := t.TempDir()
-			c := bottlerocket.NewConfig(bottlerocket.With(
-				fmt.Sprintf("%s/updateinfo.xml.gz", ts.URL),
-				tmpDir,
-			))
+			c := bottlerocket.NewConfig(
+				bottlerocket.WithURL(fmt.Sprintf("%s/updateinfo.xml.gz", ts.URL)),
+				bottlerocket.WithVulnListDir(tmpDir),
+			)
 
 			err := c.Update()
 			if tc.wantErr != "" {
@@ -62,6 +62,10 @@ func TestConfig_Update(t *testing.T) {
 				return
 			}
 			require.NoError(t, err)
+
+			entries, err := os.ReadDir(filepath.Join(tmpDir, "bottlerocket"))
+			require.NoError(t, err)
+			assert.Len(t, entries, len(tc.wantFiles))
 
 			for _, wantFile := range tc.wantFiles {
 				got, err := os.ReadFile(filepath.Join(tmpDir, "bottlerocket", wantFile))

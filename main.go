@@ -8,10 +8,10 @@ import (
 
 	"github.com/aquasecurity/vuln-list-update/alma"
 	"github.com/aquasecurity/vuln-list-update/alpine"
-	"github.com/aquasecurity/vuln-list-update/bottlerocket"
 	alpineunfixed "github.com/aquasecurity/vuln-list-update/alpine-unfixed"
 	"github.com/aquasecurity/vuln-list-update/amazon"
 	arch_linux "github.com/aquasecurity/vuln-list-update/arch"
+	"github.com/aquasecurity/vuln-list-update/bottlerocket"
 	"github.com/aquasecurity/vuln-list-update/chainguard"
 	"github.com/aquasecurity/vuln-list-update/cwe"
 	"github.com/aquasecurity/vuln-list-update/debian/tracker"

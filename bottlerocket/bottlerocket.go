@@ -29,9 +29,14 @@ type Config struct {
 
 type option func(*Config)
 
-func With(url, vulnListDir string) option {
+func WithURL(url string) option {
 	return func(c *Config) {
 		c.url = url
+	}
+}
+
+func WithVulnListDir(vulnListDir string) option {
+	return func(c *Config) {
 		c.vulnListDir = vulnListDir
 	}
 }
