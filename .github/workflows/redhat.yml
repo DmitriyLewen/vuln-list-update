@@ -7,7 +7,7 @@ on:
 jobs:
   update:
     name: Update vuln-list-redhat
-    runs-on: ubuntu-2404-2core
+    runs-on: ubuntu-latest
     permissions:
       contents: read
     env:
@@ -51,17 +51,6 @@ jobs:
       run: go build -o vuln-list-update .
 
     - if: always()
-      name: Red Hat OVALv2
-      uses: ./.github/actions/update-source
-      with:
-        target: redhat-oval
-        client-id: ${{ secrets.SA_GH_VULN_LIST_UPDATE_GH_APP_CLIENT_ID }}
-        private-key: ${{ secrets.SA_GH_VULN_LIST_UPDATE_GH_APP_PRIVATE_KEY }}
-        owner: ${{ github.repository_owner }}
-        repository: ${{ env.VULN_LIST_DIR }}
-        commit-message: "Red Hat OVAL v2"
-
-    - if: always()
       name: Red Hat CSAF VEX
       uses: ./.github/actions/update-source
       with:
@@ -71,23 +60,3 @@ jobs:
         owner: ${{ github.repository_owner }}
         repository: ${{ env.VULN_LIST_DIR }}
         commit-message: "Red Hat CSAF VEX"
-
-    - if: always()
-      name: Red Hat Security Data API
-      uses: ./.github/actions/update-source
-      with:
-        target: redhat
-        client-id: ${{ secrets.SA_GH_VULN_LIST_UPDATE_GH_APP_CLIENT_ID }}
-        private-key: ${{ secrets.SA_GH_VULN_LIST_UPDATE_GH_APP_PRIVATE_KEY }}
-        owner: ${{ github.repository_owner }}
-        repository: ${{ env.VULN_LIST_DIR }}
-        commit-message: "Red Hat Security Data API"
-
-    - name: Slack Notification
-      uses: slackapi/slack-github-action@45a88b9581bfab2566dc881e2cd66d334e621e2c # v3.0.3
-      if: failure()
-      with:
-        webhook: ${{ secrets.TRIVY_SLACK_WEBHOOK }}
-        webhook-type: incoming-webhook
-        payload: |
-          text: ":x: *${{ github.workflow }}* workflow failed — <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|view run>"
